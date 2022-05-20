@@ -65,12 +65,73 @@ renderMap(cameraWidth,cameraHeight*2);
 
 
 const renderer = new THREE.WebGLRenderer({antialias:true});
+let ready;
+let playerAngleMoved;
+let score;
+const scoreElement=document.getElementById("score");
+let otherVehicles=[];
+let lastTimestamp;
+let accelerate=false;
+let decelerate=false;
+
+//serve como um reset do jogo ou uma inicialização do mesmo
+reset();
+
+window.addEventListener("keydown",function(event){
+    if(event.key=="ArrowUp"){
+        startGame();
+        accelerate=true;
+        return;
+    }
+    if(event.key=="ArrowDown"){
+        decelerate=true;
+        return;
+    }
+    if(event.key=="R"||event.key=='r'){
+        reset();
+        return;
+    }
+});
+
+Window.addEventListener("Keyup",function(event){
+if(event.key=="ArrowUp"){
+    accelerate=false;
+    return;
+}
+if(event.key=="ArrowDown"){
+    decelerate=false;
+    return;
+}
+});
+
 renderer.setSize(window.innerWidth,window.innerHeight);
 renderer.render(scene,camera);
 
 document.body.appendChild(renderer.domElement);
 
+function reset(){
+    //Reseta a posição do carro na pista e o score (número de voltas)
+    playerAngleMoved=0;
+    movePlayerCar(0);
+    score=0;
+    scoreElement.innerText=score;
+    lastTimestamp=undefined;
 
+    //Remove os outros veiculos da cena
+    otherVehicles.forEach((vehicle)=>{
+        scene.remove(vehicle.mesh);
+    });
+    otherVehicles=[];
+    renderer.render(scene,camera);
+    ready=true;
+
+}
+function startGame(){
+    if(ready){
+        ready=false;
+        renderer.setAnimationLoop(animation);
+    }
+}
 
 function Car(){
     const car = new THREE.Group();
