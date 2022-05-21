@@ -1,10 +1,51 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>WebGL - Three.js</title>
+    <title>Projeto-CarsNTrucks</title>
 </head>
 <body>
-    <div id="score">0</div>
+    <div id="score">Press UP</div>
+
+<div id="controls">
+  <div id="buttons">
+    <button id="accelerate">
+      <svg width="30" height="30" viewBox="0 0 10 10">
+        <g transform="rotate(0, 5,5)">
+          <path d="M5,4 L7,6 L3,6 L5,4" />
+        </g>
+      </svg>
+    </button>
+    <button id="decelerate">
+      <svg width="30" height="30" viewBox="0 0 10 10">
+        <g transform="rotate(180, 5,5)">
+          <path d="M5,4 L7,6 L3,6 L5,4" />
+        </g>
+      </svg>
+    </button>
+    <button id="perspetive"><center>Perspetive
+      <svg width="30" height="30" viewBox="0 0 10 10"></svg>
+    </center>
+    </button>
+    <button id="ortographic"><center>Ortographic
+      <svg width="30" height="30" viewBox="0 0 10 10"></svg>
+    </center>
+    </button>
+  </div>
+  <div id="instructions">
+    Press UP to start. Avoid collision with other vehicles by accelerating
+    or decelerating with the UP and DOWN keys.
+  </div>
+</div>
+
+<div id="results">
+  <div class="content">
+    <h1>You hit another vehicle</h1>
+    <p>To reset the game press R</p>
+
+  </div>
+</div>
+
+
 
 
     <script src="./JavaScript/inflate.min.js"></script>
