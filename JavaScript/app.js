@@ -254,7 +254,7 @@ function getLineMarkings(mapWidth, mapHeight) {//Desenha as linhas a traçejado 
   return new THREE.CanvasTexture(canvas);
 }
 
-function getCurbsTexture(mapWidth, mapHeight) {
+function getCurbsTexture(mapWidth, mapHeight) {//esta função é responsável pelo desenho das texturas permonerizadas da pista (parte de fora,de dentro da pista)
   const canvas = document.createElement("canvas");
   canvas.width = mapWidth;
   canvas.height = mapHeight;
@@ -263,7 +263,7 @@ function getCurbsTexture(mapWidth, mapHeight) {
   context.fillStyle = lawnGreen;
   context.fillRect(0, 0, mapWidth, mapHeight);
 
-  // Extra big
+
   context.lineWidth = 65;
   context.strokeStyle = "#A2FF75";
   context.beginPath();
@@ -302,7 +302,7 @@ function getCurbsTexture(mapWidth, mapHeight) {
   );
   context.stroke();
 
-  // Extra small
+  //extra small
   context.lineWidth = 60;
   context.strokeStyle = lawnGreen;
   context.beginPath();
@@ -389,10 +389,11 @@ function getCurbsTexture(mapWidth, mapHeight) {
   return new THREE.CanvasTexture(canvas);
 }
 
+//função que irá desenhar e preencher a ilha da esquerda (parte interior do arco da esquerda)
 function getLeftIsland() {
   const islandLeft = new THREE.Shape();
 
-  islandLeft.absarc(
+  islandLeft.absarc(//desenha e prenche o circulo interior do arco da esquerda
     -arcCenterX,
     0,
     innerTrackRadius,
@@ -401,7 +402,7 @@ function getLeftIsland() {
     false
   );
 
-  islandLeft.absarc(
+  islandLeft.absarc(//desenha o circulo exterior do arco da direita e corta na parte intersetada com o circulo da direita ,dando origem á "meia lua"
     arcCenterX,
     0,
     outerTrackRadius,
@@ -413,10 +414,12 @@ function getLeftIsland() {
   return islandLeft;
 }
 
+
+//função que irá desenhar e preencher a "ilha" do meio
 function getMiddleIsland() {
   const islandMiddle = new THREE.Shape();
 
-  islandMiddle.absarc(
+  islandMiddle.absarc(//desenha e preenche o circulo exterior da esquerda
     -arcCenterX,
     0,
     innerTrackRadius,
@@ -425,7 +428,7 @@ function getMiddleIsland() {
     true
   );
 
-  islandMiddle.absarc(
+  islandMiddle.absarc(//desenha e preenche o circulo exterior da direita ,a interseção deste dois circulos dá origem á ilha do meio
     arcCenterX,
     0,
     innerTrackRadius,
@@ -437,10 +440,11 @@ function getMiddleIsland() {
   return islandMiddle;
 }
 
+//desenha e preenche a "ilha" da direita
 function getRightIsland() {
   const islandRight = new THREE.Shape();
 
-  islandRight.absarc(
+  islandRight.absarc(//desenha e preenche o circulo interior do arco na esquerda
     arcCenterX,
     0,
     innerTrackRadius,
@@ -449,7 +453,7 @@ function getRightIsland() {
     true
   );
 
-  islandRight.absarc(
+  islandRight.absarc(//desenha o circulo exterior no lado direito e corta a parte intersetada com o circulo da esquerda ,dando origem á "meia lua"
     -arcCenterX,
     0,
     outerTrackRadius,
@@ -461,6 +465,7 @@ function getRightIsland() {
   return islandRight;
 }
 
+//Irá desenhar e preencher o resto do mapa que se designa por campo exterior
 function getOuterField(mapWidth, mapHeight) {
   const field = new THREE.Shape();
 
@@ -486,6 +491,7 @@ function getOuterField(mapWidth, mapHeight) {
   return field;
 }
 
+//Função responsável por renderizar o o mapa
 function renderMap(mapWidth, mapHeight) {
   const lineMarkingsTexture = getLineMarkings(mapWidth, mapHeight);
 
@@ -498,7 +504,7 @@ function renderMap(mapWidth, mapHeight) {
   plane.matrixAutoUpdate = false;
   scene.add(plane);
 
-  // Extruded geometry with curbs
+  //Definição e criação das ilhas na pista e o campo exterior
   const islandLeft = getLeftIsland();
   const islandMiddle = getMiddleIsland();
   const islandRight = getRightIsland();
@@ -511,15 +517,15 @@ function renderMap(mapWidth, mapHeight) {
   curbsTexture.offset = new THREE.Vector2(0.5, 0.5);
   curbsTexture.repeat.set(1 / mapWidth, 1 / mapHeight);
 
-  // An extruded geometry turns a 2D shape into 3D by giving it a depth
+  //Dando uma noção 3D das ilhas e do campo exterior presentes na cena
   const fieldGeometry = new THREE.ExtrudeBufferGeometry(
     [islandLeft, islandRight, islandMiddle, outerField],
     { depth: 6, bevelEnabled: false }
   );
 
+  //Dando malha ao mapa
   const fieldMesh = new THREE.Mesh(fieldGeometry, [
     new THREE.MeshLambertMaterial({
-      // Either set a plain color or a texture depending on config
       color: !config.curbs && lawnGreen,
       map: config.curbs && curbsTexture
     }),
@@ -531,6 +537,7 @@ function renderMap(mapWidth, mapHeight) {
 
   positionScoreElement();
 
+  //Criação das árvores e posicionamento das mesmas no mapa
   if (config.trees) {
     const tree1 = Tree();
     tree1.position.x = arcCenterX * 1.3;
@@ -603,6 +610,7 @@ function renderMap(mapWidth, mapHeight) {
   }
 }
 
+//criação da textura do vidro da parte da frente do carro
 function getCarFrontTexture() {
   const canvas = document.createElement("canvas");
   canvas.width = 64;
@@ -618,6 +626,7 @@ function getCarFrontTexture() {
   return new THREE.CanvasTexture(canvas);
 }
 
+//criação da textura do vidro da parte do lado do carro
 function getCarSideTexture() {
   const canvas = document.createElement("canvas");
   canvas.width = 128;
@@ -634,55 +643,69 @@ function getCarSideTexture() {
   return new THREE.CanvasTexture(canvas);
 }
 
+//Construção do carro
 function Car() {
   const car = new THREE.Group();
 
-  const color = pickRandom(vehicleColors);
+  const color = pickRandom(vehicleColors);//escolher uma cor random para o carro
 
-  const main = new THREE.Mesh(
+  const main = new THREE.Mesh(//construção da base do carro
     new THREE.BoxBufferGeometry(60, 30, 15),
     new THREE.MeshLambertMaterial({ color })
   );
+  //posicionamento da base do carro no plano z e transmissão e receção de sombras 
   main.position.z = 12;
   main.castShadow = true;
   main.receiveShadow = true;
   car.add(main);
 
+  //janela da frente do carro criada
   const carFrontTexture = getCarFrontTexture();
   carFrontTexture.center = new THREE.Vector2(0.5, 0.5);
   carFrontTexture.rotation = Math.PI / 2;
 
+  //janela de trás do carro
   const carBackTexture = getCarFrontTexture();
   carBackTexture.center = new THREE.Vector2(0.5, 0.5);
   carBackTexture.rotation = -Math.PI / 2;
 
+  //janela lateral esquerda do carro
   const carLeftSideTexture = getCarSideTexture();
   carLeftSideTexture.flipY = false;
 
+  //janela lateral direita do carro
   const carRightSideTexture = getCarSideTexture();
 
+  //criação da cabine do carro onde estarão as janelas criadas acima
   const cabin = new THREE.Mesh(new THREE.BoxBufferGeometry(33, 24, 12), [
     new THREE.MeshLambertMaterial({ map: carFrontTexture }),
     new THREE.MeshLambertMaterial({ map: carBackTexture }),
     new THREE.MeshLambertMaterial({ map: carLeftSideTexture }),
     new THREE.MeshLambertMaterial({ map: carRightSideTexture }),
-    new THREE.MeshLambertMaterial({ color: 0xffffff }), // top
-    new THREE.MeshLambertMaterial({ color: 0xffffff }) // bottom
+    new THREE.MeshLambertMaterial({ color: 0xffffff }), // cima
+    new THREE.MeshLambertMaterial({ color: 0xffffff }) // baixo
   ]);
+
+  //definição da posição da cabine e de incidência e reflexão de sombras.
   cabin.position.x = -6;
   cabin.position.z = 25.5;
   cabin.castShadow = true;
   cabin.receiveShadow = true;
   car.add(cabin);
+  
 
+  //criação da roda de trás
   const backWheel = new Wheel();
-  backWheel.position.x = -18;
+  backWheel.position.x = -18;//por a roda na parte de trás do carro
   car.add(backWheel);
 
+  //criação da outra roda de trás
   const frontWheel = new Wheel();
-  frontWheel.position.x = 18;
+  frontWheel.position.x = 18;//pôr a outra roda na parte de trás do carro
   car.add(frontWheel);
 
+
+  //criar as hitzones do carro (o carro irá ter 2 hitzones e o camião irá ter 3)
   if (config.showHitZones) {
     car.userData.hitZone1 = HitZone();
     car.userData.hitZone2 = HitZone();
@@ -691,6 +714,7 @@ function Car() {
   return car;
 }
 
+//janela da frente e/ou de trás do camião
 function getTruckFrontTexture() {
   const canvas = document.createElement("canvas");
   canvas.width = 32;
@@ -706,6 +730,8 @@ function getTruckFrontTexture() {
   return new THREE.CanvasTexture(canvas);
 }
 
+
+//janela lateral do camião
 function getTruckSideTexture() {
   const canvas = document.createElement("canvas");
   canvas.width = 32;
@@ -721,36 +747,45 @@ function getTruckSideTexture() {
   return new THREE.CanvasTexture(canvas);
 }
 
+//função que irá criar um camião
 function Truck() {
   const truck = new THREE.Group();
-  const color = pickRandom(vehicleColors);
+  const color = pickRandom(vehicleColors);//escolhe ao calhas a cor do camião
 
+  
+  //base do camião (possui diferentes dimensões que a do carro)
   const base = new THREE.Mesh(
     new THREE.BoxBufferGeometry(100, 25, 5),
     new THREE.MeshLambertMaterial({ color: 0xb4c6fc })
   );
-  base.position.z = 10;
+  base.position.z = 10;//posição z da base
   truck.add(base);
 
+  //"reboque" do camião 
   const cargo = new THREE.Mesh(
-    new THREE.BoxBufferGeometry(75, 35, 40),
-    new THREE.MeshLambertMaterial({ color: 0xffffff }) // 0xb4c6fc
+    new THREE.BoxBufferGeometry(75, 35, 40),//dimensões do reboque
+    new THREE.MeshLambertMaterial({ color: 0xffffff }) // cor do reboque
   );
+  //definição da posição do reboque ,incidêcia e existência de sombra
   cargo.position.x = -15;
   cargo.position.z = 30;
   cargo.castShadow = true;
   cargo.receiveShadow = true;
   truck.add(cargo);
 
+  //criação da janela da frente do camião
   const truckFrontTexture = getTruckFrontTexture();
   truckFrontTexture.center = new THREE.Vector2(0.5, 0.5);
   truckFrontTexture.rotation = Math.PI / 2;
 
+  //criação da janela lateral esquerda do camião
   const truckLeftTexture = getTruckSideTexture();
   truckLeftTexture.flipY = false;
 
+  //criação da janela lateral direita do camião
   const truckRightTexture = getTruckSideTexture();
 
+  //criação da cabine do camião e adição das janelas á cabine
   const cabin = new THREE.Mesh(new THREE.BoxBufferGeometry(25, 30, 30), [
     new THREE.MeshLambertMaterial({ color, map: truckFrontTexture }),
     new THREE.MeshLambertMaterial({ color }), // back
@@ -759,24 +794,29 @@ function Truck() {
     new THREE.MeshLambertMaterial({ color }), // top
     new THREE.MeshLambertMaterial({ color }) // bottom
   ]);
+  //posição da cabine e incidência e transmissão de sombras
   cabin.position.x = 40;
   cabin.position.z = 20;
   cabin.castShadow = true;
   cabin.receiveShadow = true;
   truck.add(cabin);
 
+  //criação da roda de trás
   const backWheel = Wheel();
-  backWheel.position.x = -30;
+  backWheel.position.x = -30;//na parte de trás do camião
   truck.add(backWheel);
 
+  //criação da roda do meio do camião
   const middleWheel = Wheel();
-  middleWheel.position.x = 10;
+  middleWheel.position.x = 10;//na parte do meio do camião
   truck.add(middleWheel);
 
+  //criação da roda da frente do camião
   const frontWheel = Wheel();
-  frontWheel.position.x = 38;
+  frontWheel.position.x = 38;//na parte da frente do camião
   truck.add(frontWheel);
 
+  //criação das hitzones do camião
   if (config.showHitZones) {
     truck.userData.hitZone1 = HitZone();
     truck.userData.hitZone2 = HitZone();
@@ -786,11 +826,13 @@ function Truck() {
   return truck;
 }
 
+//função que irá criar as hitzones para qualquer tipo de veiculo
 function HitZone() {
   const hitZone = new THREE.Mesh(
-    new THREE.CylinderGeometry(20, 20, 60, 30),
+    new THREE.CylinderGeometry(20, 20, 60, 30),//definição da dimensão circulo
     new THREE.MeshLambertMaterial({ color: 0xff0000 })
   );
+  //coordenadas do circulo no veiculo
   hitZone.position.z = 25;
   hitZone.rotation.x = Math.PI / 2;
 
@@ -798,6 +840,7 @@ function HitZone() {
   return hitZone;
 }
 
+//função que irá criar rodas para qualquer tipo de veiculo
 function Wheel() {
   const wheel = new THREE.Mesh(wheelGeometry, wheelMaterial);
   wheel.position.z = 6;
@@ -806,23 +849,29 @@ function Wheel() {
   return wheel;
 }
 
+//função que irá criar as árvores
 function Tree() {
   const tree = new THREE.Group();
 
+  //tronco
   const trunk = new THREE.Mesh(treeTrunkGeometry, treeTrunkMaterial);
+  //posição ,incidência e transmissão de sombras no tronco
   trunk.position.z = 10;
   trunk.castShadow = true;
   trunk.receiveShadow = true;
   trunk.matrixAutoUpdate = false;
   tree.add(trunk);
 
+  //tipos de alturas de arvores
   const treeHeights = [45, 60, 75];
   const height = pickRandom(treeHeights);
 
+  //parte da cima da árvore
   const crown = new THREE.Mesh(
     new THREE.SphereGeometry(height / 2, 30, 30),
     treeCrownMaterial
   );
+  //posição ,incidência e transmissão de sombras na parete de cima 
   crown.position.z = height / 2 + 30;
   crown.castShadow = true;
   crown.receiveShadow = false;
@@ -831,6 +880,8 @@ function Tree() {
   return tree;
 }
 
+//lógica do jogo
+//Começar jogo,acelerar,desacelerar,recomeçar jogo
 accelerateButton.addEventListener("mousedown", function () {
   startGame();
   accelerate = true;
@@ -871,6 +922,7 @@ window.addEventListener("keyup", function (event) {
   }
 });
 
+//irá relalizar a animação da cena durante um determinado tempo
 function animation(timestamp) {
   if (!lastTimestamp) {
     lastTimestamp = timestamp;
@@ -879,19 +931,21 @@ function animation(timestamp) {
 
   const timeDelta = timestamp - lastTimestamp;
 
+  //irá mover o carro do jogador consoante o tempo entre animações
   movePlayerCar(timeDelta);
 
   const laps = Math.floor(Math.abs(playerAngleMoved) / (Math.PI * 2));
 
-  // Update score if it changed
+  //atualizar o score sempre que uma volta for dada
   if (laps != score) {
     score = laps;
     scoreElement.innerText = score;
   }
 
-  // Add a new vehicle at the beginning and with every 5th lap
+  //Irá adicionar um veículo na posição inicial do arco a cada 5 voltas
   if (otherVehicles.length < (laps + 1) / 5) addVehicle();
 
+//irá mover os outros veículos consoante o tempo entre animações
   moveOtherVehicles(timeDelta);
 
   hitDetection();
@@ -1022,11 +1076,11 @@ function hitDetection() {
         vehicle.mesh.userData.hitZone2.position.y = vehicleHitZone2.y;
       }
 
-      // The player hits another vehicle
+      // O jogador colide com outro veiculo
       if (getDistance(playerHitZone1, vehicleHitZone1) < 40) return true;
       if (getDistance(playerHitZone1, vehicleHitZone2) < 40) return true;
 
-      // Another vehicle hits the player
+      // Outro veiculo atinge o jogador
       if (getDistance(playerHitZone2, vehicleHitZone1) < 40) return true;
     }
 
@@ -1063,22 +1117,23 @@ function hitDetection() {
         vehicle.mesh.userData.hitZone3.position.y = vehicleHitZone3.y;
       }
 
-      // The player hits another vehicle
+      // O jogador colide com outro veiculo
       if (getDistance(playerHitZone1, vehicleHitZone1) < 40) return true;
       if (getDistance(playerHitZone1, vehicleHitZone2) < 40) return true;
       if (getDistance(playerHitZone1, vehicleHitZone3) < 40) return true;
 
-      // Another vehicle hits the player
+      // Outro veiculo colide com o jogador
       if (getDistance(playerHitZone2, vehicleHitZone1) < 40) return true;
     }
   });
 
-  if (hit) {
+  if (hit) {//Caso haja alguma colisão ,as mensagens de fim de jogo aparecem no ecrã
     if (resultsElement) resultsElement.style.display = "flex";
-    renderer.setAnimationLoop(null); // Stop animation loop
+    renderer.setAnimationLoop(null); //Para o loop da animaçãpo
   }
 }
 
+//depois de acabar o jogo ,quando se recomeça o jogo,o DOM é reajustado para o formato original ou seja,as mensagens de fim de jogo desaparecem
 window.addEventListener("resize", () => {
   console.log("resize", window.innerWidth, window.innerHeight);
 
