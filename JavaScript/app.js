@@ -22,6 +22,7 @@ const edgeColor = "#725F48";
 const treeCrownColor = 0x498c2c;
 const treeTrunkColor = 0x4b3f2f;
 
+
 const wheelGeometry = new THREE.BoxBufferGeometry(12, 33, 12);
 const wheelMaterial = new THREE.MeshLambertMaterial({ color: 0x333333 });
 const treeTrunkGeometry = new THREE.BoxBufferGeometry(15, 15, 30);
@@ -96,6 +97,7 @@ const aspectRatio = window.innerWidth / window.innerHeight*2;
 const cameraWidth = 960;
 const cameraHeight = cameraWidth / aspectRatio;
 
+
 const camera = new THREE.OrthographicCamera(
   cameraWidth / -2, // esquerda
   cameraWidth / 2, // direita
@@ -105,10 +107,11 @@ const camera = new THREE.OrthographicCamera(
   1000 // longe do plano de projeção
 );
 
+
 //Adicionar dois butões no HTML que tenham o mesmo id associado e que ao serem clickados ,escolham o tipo de camera
 
 //definir a posição da camara no canvas
-camera.position.set(0, -350, 400);
+camera.position.set(0,-360,250);
 camera.lookAt(0, 0, 0);
 
 //criar cena
@@ -155,6 +158,8 @@ const renderer = new THREE.WebGLRenderer({
   antialias: true,
   powerPreference: "high-performance"
 });
+
+
 renderer.setSize(window.innerWidth, window.innerHeight);
 if (config.shadows) renderer.shadowMap.enabled = true;
 document.body.appendChild(renderer.domElement);
@@ -1151,6 +1156,7 @@ window.addEventListener("resize", () => {
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.render(scene, camera);
 });
+
 
 
 
