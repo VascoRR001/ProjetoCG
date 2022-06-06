@@ -98,21 +98,20 @@ const cameraWidth = 960;
 const cameraHeight = cameraWidth / aspectRatio;
 
 
-const camera = new THREE.OrthographicCamera(
+/*const camera2= new THREE.OrthographicCamera(
   cameraWidth / -2, // esquerda
   cameraWidth / 2, // direita
   cameraHeight / 2, // cima
   cameraHeight / -2, // baixo
   50, // perto do plano de projeção
   1000 // longe do plano de projeção
-);
-
+);*/
 
 //Adicionar dois butões no HTML que tenham o mesmo id associado e que ao serem clickados ,escolham o tipo de camera
 
 //definir a posição da camara no canvas
-camera.position.set(0,-360,250);
-camera.lookAt(0, 0, 0);
+//camera.position.set(0,-360,250);
+//camera.lookAt(0, 0, 0);
 
 //criar cena
 const scene = new THREE.Scene();
@@ -120,6 +119,14 @@ const scene = new THREE.Scene();
 //criar um carro e adiciona-lo á cena
 const playerCar = Car();
 scene.add(playerCar);
+
+
+var fieldOfView = 80;
+near = 0.1;
+far = 1000;
+const Perspetivecamera = new THREE.PerspectiveCamera(fieldOfView, aspectRatio, near, far);
+Perspetivecamera.position.set(0,-330,80);
+Perspetivecamera.lookAt(playerCar.position.x,playerCar.position.y,playerCar.position.z);
 
 //renderizar o mapa consoante a altura da camara e a largura da camara
 renderMap(cameraWidth, cameraHeight * 2); //Como a altura do mapa é maior que a altura a que a camara se encontra ,será necessário
@@ -196,7 +203,7 @@ function reset() {
   movePlayerCar(0);
 
   //Renderiza a cena
-  renderer.render(scene, camera);
+  renderer.render(scene, Perspetivecamera);
 
   //pronto para começar o jogo 
   ready = true;
@@ -500,7 +507,7 @@ function getOuterField(mapWidth, mapHeight) {
 function renderMap(mapWidth, mapHeight) {
   const lineMarkingsTexture = getLineMarkings(mapWidth, mapHeight);
 
-  const planeGeometry = new THREE.PlaneBufferGeometry(mapWidth, mapHeight);
+  const planeGeometry = new THREE.PlaneBufferGeometry(mapWidth*2, mapHeight*2);
   const planeMaterial = new THREE.MeshLambertMaterial({
     map: lineMarkingsTexture
   });
@@ -902,12 +909,12 @@ decelerateButton.addEventListener("mouseup", function () {
   decelerate = false;
 });
 window.addEventListener("keydown", function (event) {
-  if (event.key == "ArrowUp") {
+  if (event.key == "w") {
     startGame();
     accelerate = true;
     return;
   }
-  if (event.key == "ArrowDown") {
+  if (event.key == "s") {
     decelerate = true;
     return;
   }
@@ -917,11 +924,11 @@ window.addEventListener("keydown", function (event) {
   }
 });
 window.addEventListener("keyup", function (event) {
-  if (event.key == "ArrowUp") {
+  if (event.key == "w") {
     accelerate = false;
     return;
   }
-  if (event.key == "ArrowDown") {
+  if (event.key == "s") {
     decelerate = false;
     return;
   }
@@ -955,7 +962,7 @@ function animation(timestamp) {
 
   hitDetection();
 
-  renderer.render(scene, camera);
+  renderer.render(scene, Perspetivecamera);
   lastTimestamp = timestamp;
 }
 
@@ -972,6 +979,9 @@ function movePlayerCar(timeDelta) {
   playerCar.position.y = playerY;
 
   playerCar.rotation.z = totalPlayerAngle - Math.PI / 2;
+
+  
+  
 }
 
 function moveOtherVehicles(timeDelta) {
@@ -1146,15 +1156,15 @@ window.addEventListener("resize", () => {
   const newAspectRatio = window.innerWidth / window.innerHeight;
   const adjustedCameraHeight = cameraWidth / newAspectRatio;
 
-  camera.top = adjustedCameraHeight / 2;
-  camera.bottom = adjustedCameraHeight / -2;
-  camera.updateProjectionMatrix(); // Must be called after change
+  Perspetivecamera.top = adjustedCameraHeight / 2;
+  Perspetivecamera.bottom = adjustedCameraHeight / -2;
+  Perspetivecamera.updateProjectionMatrix(); // Must be called after change
 
   positionScoreElement();
 
   // Reset renderer
   renderer.setSize(window.innerWidth, window.innerHeight);
-  renderer.render(scene, camera);
+  renderer.render(scene,Perspetivecamera);
 });
 
 
